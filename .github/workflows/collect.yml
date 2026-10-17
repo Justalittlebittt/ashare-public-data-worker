@@ -1,0 +1,31 @@
+name: Public A-share candidate snapshot
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'collect.py'
+      - 'test_collect.py'
+      - '.github/workflows/collect.yml'
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline unit tests
+        run: python -m unittest discover -v
+      - name: Fetch public candidate closes
+        run: python collect.py --start 2025-01-01 --output candidate.csv --min-sessions 272
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: candidate-a-share-index-closes
+          path: |
+            candidate.csv
+            candidate.csv.manifest.json
+          retention-days: 7
