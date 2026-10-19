@@ -47,7 +47,10 @@ def evaluate(root=Path('snapshots')):
         per={}
         for index in ('000300.SH','000688.SH'):
             calendar=sorted(latest_data[index])
-            if asof not in latest_data[index]:raise ValueError('ASOF_MISSING_FROM_OUTCOME_SNAPSHOT')
+            if asof not in latest_data[index]:
+                item['status']='QUARANTINED_ASOF_NOT_IN_LATEST_HISTORY'
+                per={}
+                break
             pos=calendar.index(asof)
             if len(calendar)-pos-1<20:continue
             prices=[latest_data[index][d] for d in calendar[pos:pos+21]]
