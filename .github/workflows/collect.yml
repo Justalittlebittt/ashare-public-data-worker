@@ -8,6 +8,7 @@ on:
     paths:
       - 'collect.py'
       - 'test_collect.py'
+      - 'test_atomic_fallback.py'
       - 'risk_diagnostic.py'
       - 'test_risk_diagnostic.py'
       - 'archive_snapshot.py'
