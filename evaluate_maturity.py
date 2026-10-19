@@ -45,7 +45,7 @@ def evaluate(root=Path('snapshots')):
         canonical.setdefault(x[0],x)
     # Latest available snapshot is strictly a source of future outcomes, not forecasts.
     latest=max(indexed,key=lambda v:(max(v[5]['000300.SH']),v[1])) if indexed else None
-    out={'schema':'CANDIDATE_FORWARD_EVALUATION_V1','independent_forecast_dates':len(canonical),
+    out={'schema':'CANDIDATE_FORWARD_EVALUATION_V1','unique_forecast_dates':len(canonical),'independence_warning':'DAILY_20_SESSION_TARGETS_OVERLAP_DO_NOT_TREAT_AS_INDEPENDENT_WINDOWS',
         'status':'CANDIDATE_ONLY_NOT_PIT_VERIFIED','trading_authorized':False,'evaluations':[]}
     if not latest:return out
     latest_manifest,latest_data=latest[4],latest[5]
@@ -88,9 +88,10 @@ def evaluate(root=Path('snapshots')):
     out['pending_count']=sum(x['status'].startswith('PENDING') for x in out['evaluations'])
     out['quarantined_count']=sum(x['status'].startswith('QUARANTINED') for x in out['evaluations'])
     out['forecast_validated']=False
+    out['inferential_test_authorized']=False
     return out
 
 if __name__=='__main__':
     result=evaluate()
     Path('candidate_maturity_evaluation.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
-    print(json.dumps({'registered_dates':result['independent_forecast_dates'],'matured':result.get('matured_count',0),'pending':result.get('pending_count',0)}))
+    print(json.dumps({'unique_forecast_dates':result['unique_forecast_dates'],'matured':result.get('matured_count',0),'pending':result.get('pending_count',0)}))
