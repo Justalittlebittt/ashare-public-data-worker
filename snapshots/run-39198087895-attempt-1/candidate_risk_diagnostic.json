@@ -1,0 +1,140 @@
+{
+  "schema": "AI_CORE_EVID_CANDIDATE_RISK_DIAGNOSTIC_V2",
+  "source_snapshot_sha256": "2cf291cb129c7e9ad1665addffd3318d098bb0fd1bcb74f5281296a7f452fe7c",
+  "split_date": "2026-04-01",
+  "horizon_sessions": 20,
+  "split_selection": "RETROSPECTIVE_NOT_PRE_REGISTERED",
+  "data_status": "CANDIDATE_ONLY_NOT_SOURCE_ADMITTED",
+  "forecast_verified": false,
+  "trading_authorized": false,
+  "indices": {
+    "000300.SH": {
+      "close_count": 431,
+      "evaluation_windows": 6,
+      "persistence_MAE": 0.06104581271178538,
+      "baseline_MAE": 0.062341236148116715,
+      "persistence_win_count": 3,
+      "assessment": "INSUFFICIENT_INDEPENDENT_WINDOWS",
+      "observations": [
+        {
+          "date": "2026-04-01",
+          "forward_end_date": "2026-04-30",
+          "observed_forward_rv20": 0.16127357584369986,
+          "persistence_prediction": 0.19306669694601725,
+          "expanding_mean_baseline": 0.14186591956463557,
+          "persistence_abs_error": 0.031793121102317384,
+          "baseline_abs_error": 0.019407656279064295
+        },
+        {
+          "date": "2026-04-30",
+          "forward_end_date": "2026-06-02",
+          "observed_forward_rv20": 0.16660888597441234,
+          "persistence_prediction": 0.16127357584369986,
+          "expanding_mean_baseline": 0.14588102164884956,
+          "persistence_abs_error": 0.005335310130712478,
+          "baseline_abs_error": 0.020727864325562784
+        },
+        {
+          "date": "2026-06-02",
+          "forward_end_date": "2026-07-01",
+          "observed_forward_rv20": 0.25705816908209006,
+          "persistence_prediction": 0.16660888597441234,
+          "expanding_mean_baseline": 0.14568914269105318,
+          "persistence_abs_error": 0.09044928310767772,
+          "baseline_abs_error": 0.11136902639103688
+        },
+        {
+          "date": "2026-07-01",
+          "forward_end_date": "2026-07-29",
+          "observed_forward_rv20": 0.2996225193953938,
+          "persistence_prediction": 0.25705816908209006,
+          "expanding_mean_baseline": 0.14934896208769377,
+          "persistence_abs_error": 0.042564350313303745,
+          "baseline_abs_error": 0.15027355730770003
+        },
+        {
+          "date": "2026-07-29",
+          "forward_end_date": "2026-08-26",
+          "observed_forward_rv20": 0.17149334948271464,
+          "persistence_prediction": 0.2996225193953938,
+          "expanding_mean_baseline": 0.15686081047466044,
+          "persistence_abs_error": 0.12812916991267917,
+          "baseline_abs_error": 0.014632539008054196
+        },
+        {
+          "date": "2026-08-26",
+          "forward_end_date": "2026-09-23",
+          "observed_forward_rv20": 0.10348970777869287,
+          "persistence_prediction": 0.17149334948271464,
+          "expanding_mean_baseline": 0.16112648135597496,
+          "persistence_abs_error": 0.06800364170402176,
+          "baseline_abs_error": 0.057636773577282086
+        }
+      ]
+    },
+    "000688.SH": {
+      "close_count": 431,
+      "evaluation_windows": 6,
+      "persistence_MAE": 0.1575564358375292,
+      "baseline_MAE": 0.19087400468278895,
+      "persistence_win_count": 4,
+      "assessment": "INSUFFICIENT_INDEPENDENT_WINDOWS",
+      "observations": [
+        {
+          "date": "2026-04-01",
+          "forward_end_date": "2026-04-30",
+          "observed_forward_rv20": 0.3477273473798491,
+          "persistence_prediction": 0.32716213268844735,
+          "expanding_mean_baseline": 0.27799109552211304,
+          "persistence_abs_error": 0.020565214691401767,
+          "baseline_abs_error": 0.06973625185773608
+        },
+        {
+          "date": "2026-04-30",
+          "forward_end_date": "2026-06-02",
+          "observed_forward_rv20": 0.5305292988896378,
+          "persistence_prediction": 0.3477273473798491,
+          "expanding_mean_baseline": 0.2834440269640346,
+          "persistence_abs_error": 0.18280195150978873,
+          "baseline_abs_error": 0.24708527192560326
+        },
+        {
+          "date": "2026-06-02",
+          "forward_end_date": "2026-07-01",
+          "observed_forward_rv20": 0.47249429198521636,
+          "persistence_prediction": 0.5305292988896378,
+          "expanding_mean_baseline": 0.29180563410329213,
+          "persistence_abs_error": 0.05803500690442148,
+          "baseline_abs_error": 0.18068865788192423
+        },
+        {
+          "date": "2026-07-01",
+          "forward_end_date": "2026-07-29",
+          "observed_forward_rv20": 0.7327348384575847,
+          "persistence_prediction": 0.47249429198521636,
+          "expanding_mean_baseline": 0.30497498485007707,
+          "persistence_abs_error": 0.26024054647236833,
+          "baseline_abs_error": 0.4277598536075076
+        },
+        {
+          "date": "2026-07-29",
+          "forward_end_date": "2026-08-26",
+          "observed_forward_rv20": 0.5122899263754145,
+          "persistence_prediction": 0.7327348384575847,
+          "expanding_mean_baseline": 0.3239595909220764,
+          "persistence_abs_error": 0.2204449120821702,
+          "baseline_abs_error": 0.1883303354533381
+        },
+        {
+          "date": "2026-08-26",
+          "forward_end_date": "2026-09-23",
+          "observed_forward_rv20": 0.3090389430103898,
+          "persistence_prediction": 0.5122899263754145,
+          "expanding_mean_baseline": 0.3406826003810143,
+          "persistence_abs_error": 0.20325098336502467,
+          "baseline_abs_error": 0.03164365737062447
+        }
+      ]
+    }
+  }
+}
