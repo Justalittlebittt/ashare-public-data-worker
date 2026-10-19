@@ -23,13 +23,20 @@ def compare(archived_csv,archived_manifest):
     raw=Path(archived_csv).read_bytes();manifest=json.loads(Path(archived_manifest).read_text())
     if hashlib.sha256(raw).hexdigest()!=manifest.get('snapshot_sha256'):raise ValueError('ARCHIVE_SHA_MISMATCH')
     records=list(csv.DictReader(io.StringIO(raw.decode('utf8'))))
+    from datetime import datetime,time
+    from zoneinfo import ZoneInfo
+    capture=datetime.fromisoformat(manifest['capture_time_utc'].replace('Z','+00:00')).astimezone(ZoneInfo('Asia/Shanghai'))
+    # A snapshot captured before 17:00 CST cannot attest to the day's final close.
+    unsettled_date=capture.date().isoformat() if capture.time()<time(17,0) else None
     result={'schema':'INDEPENDENT_PROVIDER_CROSSCHECK_V1','comparison':'Tencent direct vs archived Eastmoney direct','archived_sha256':manifest['snapshot_sha256'],'candidate_only':True,'formal_source_admitted':False,'results':{}}
     for symbol,idx in [('sh000300','000300.SH'),('sh000688','000688.SH')]:
         base={r['date']:float(r['close']) for r in records if r['index_id']==idx}
         alt=fetch_tencent_series(symbol)
         common=sorted(set(base)&set(alt))
-        mismatches=[{'date':d,'eastmoney':base[d],'tencent':alt[d]} for d in common if abs(base[d]-alt[d])>.02]
-        result['results'][idx]={'shared_days':len(common),'eastmoney_days':len(base),'tencent_days':len(alt),'mismatch_count':len(mismatches),'mismatch_samples':mismatches[:10],'latest_common_date':common[-1] if common else None,'status':'PASS_CANDIDATE_CROSSCHECK' if len(common)>=272 and not mismatches else 'FAIL_CANDIDATE_CROSSCHECK'}
+        quarantined={d for d in common if d==unsettled_date}
+        settled=[d for d in common if d not in quarantined]
+        mismatches=[{'date':d,'eastmoney':base[d],'tencent':alt[d]} for d in settled if abs(base[d]-alt[d])>.02]
+        result['results'][idx]={'shared_days':len(common),'settled_shared_days':len(settled),'quarantined_unsettled_dates':sorted(quarantined),'eastmoney_days':len(base),'tencent_days':len(alt),'mismatch_count':len(mismatches),'mismatch_samples':mismatches[:10],'latest_common_date':common[-1] if common else None,'status':'PASS_CANDIDATE_CROSSCHECK' if len(settled)>=272 and not mismatches else 'FAIL_CANDIDATE_CROSSCHECK'}
     if len(set(records[i]['date'] for i in range(len(records)) if records[i]['index_id']=='000300.SH') ^ set(r['date'] for r in records if r['index_id']=='000688.SH')):raise ValueError('ARCHIVED_CALENDAR_MISMATCH')
     return result
 if __name__=='__main__':
