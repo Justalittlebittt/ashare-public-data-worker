@@ -1,9 +1,11 @@
 """Public candidate-only A-share index daily collector; never a formal admission receipt."""
-import argparse,csv,hashlib,json,math,tempfile
+import argparse,csv,hashlib,json,math,tempfile,time
 from datetime import date,datetime,timezone
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import urlopen
+from urllib.error import URLError
+from http.client import RemoteDisconnected
 INDEXES={'000300.SH':'1.000300','000688.SH':'1.000688'}
 ENDPOINT='https://push2his.eastmoney.com/api/qt/stock/kline/get'
 FIELDS=['index_id','date','close','source_id','retrieved_at_utc']
@@ -11,7 +13,13 @@ SOURCE='DIRECT_EASTMONEY_CANDIDATE_NOT_ADMITTED'
 
 def fetch_index(secid,start,end,opener=urlopen):
     params={'secid':secid,'ut':'7eea3edcaed734bea9cbfc24409ed989','fields1':'f1,f2,f3,f4,f5,f6','fields2':'f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61','klt':'101','fqt':'0','beg':start.replace('-',''),'end':end.replace('-','')}
-    with opener(ENDPOINT+'?'+urlencode(params),timeout=20) as f: payload=json.load(f)
+    for attempt in range(3):
+        try:
+            with opener(ENDPOINT+'?'+urlencode(params),timeout=20) as f: payload=json.load(f)
+            break
+        except (URLError, RemoteDisconnected, TimeoutError, ConnectionError, OSError):
+            if attempt==2:raise
+            time.sleep(attempt+1)
     data=payload.get('data') or {}
     if str(data.get('code'))!=secid.split('.',1)[1]:raise ValueError('PROVIDER_INDEX_IDENTITY_MISMATCH:'+secid)
     lines=data.get('klines') or []
