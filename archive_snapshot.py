@@ -2,7 +2,7 @@
 import argparse,hashlib,json,shutil
 from pathlib import Path
 
-FILES=('candidate.csv','candidate.csv.manifest.json','candidate_risk_diagnostic.json')
+FILES=('candidate.csv','candidate.csv.manifest.json','candidate_risk_diagnostic.json','candidate_forecast_registration.json')
 def archive(run_id,attempt,root=Path('.'),dst_root=Path('snapshots')):
     if not str(run_id).isdigit() or not str(attempt).isdigit():raise ValueError('INVALID_RUN_ID')
     manifest=json.loads((root/FILES[1]).read_text(encoding='utf8'))
@@ -14,6 +14,11 @@ def archive(run_id,attempt,root=Path('.'),dst_root=Path('snapshots')):
     diagnostic=json.loads((root/FILES[2]).read_text(encoding='utf8'))
     if diagnostic.get('source_snapshot_sha256')!=manifest['snapshot_sha256'] or diagnostic.get('forecast_verified') is not False:
         raise ValueError('DIAGNOSTIC_PROVENANCE_MISMATCH')
+    registration=json.loads((root/FILES[3]).read_text(encoding='utf8'))
+    if registration.get('snapshot_sha256')!=manifest['snapshot_sha256'] or registration.get('source_admitted') is not False or registration.get('trading_authorized') is not False:
+        raise ValueError('REGISTRATION_PROVENANCE_MISMATCH')
+    if registration.get('forecast_asof_date')!=max(x['date'] for x in __import__('csv').DictReader(__import__('io').StringIO(raw.decode('utf8')))):
+        raise ValueError('REGISTRATION_ASOF_MISMATCH')
     dest=dst_root/f'run-{run_id}-attempt-{attempt}'
     if dest.exists():raise FileExistsError('IMMUTABLE_SNAPSHOT_ALREADY_EXISTS')
     dest.mkdir(parents=True)
