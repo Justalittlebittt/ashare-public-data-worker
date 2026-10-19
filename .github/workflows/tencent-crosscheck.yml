@@ -1,0 +1,26 @@
+name: Tencent independent provider crosscheck
+on:
+  push:
+    paths:
+      - 'crosscheck_tencent.py'
+      - '.github/workflows/tencent-crosscheck.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  crosscheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Crosscheck two independent provider histories
+        run: python crosscheck_tencent.py --archived-directory snapshots/run-39191968571-attempt-1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tencent-crosscheck-${{ github.run_id }}
+          path: tencent_crosscheck.json
+          retention-days: 30
