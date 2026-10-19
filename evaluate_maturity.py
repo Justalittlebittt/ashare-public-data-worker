@@ -1,6 +1,7 @@
 """Candidate-only 20-session forecast maturity and evaluation; no lookahead or trade approval."""
 import csv,hashlib,json,math,statistics
-from datetime import datetime
+from datetime import datetime,time
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 def load_snapshot(directory):
@@ -30,6 +31,13 @@ def evaluate(root=Path('snapshots')):
         asof=registration['forecast_asof_date']
         if asof!=max(data['000300.SH']):raise ValueError('FORECAST_ASOF_NOT_LATEST')
         if registration['forecast_horizon_sessions']!=20:raise ValueError('HORIZON_CHANGED')
+        if registration.get('captured_at_utc')!=manifest['capture_time_utc']:raise ValueError('REGISTRATION_CAPTURE_MISMATCH')
+        capture=datetime.fromisoformat(manifest['capture_time_utc'].replace('Z','+00:00'))
+        if captured<capture:raise ValueError('REGISTRATION_BEFORE_CAPTURE')
+        local=capture.astimezone(ZoneInfo('Asia/Shanghai'))
+        if asof>=local.date().isoformat() and local.time()<time(17,0):
+            # Preserve but never score a pre-close candle.
+            continue
         indexed.append((asof,captured,p.name,registration,manifest,data))
     # First submitted forecast per date is canonical; retries do not add independent samples.
     canonical={}
@@ -41,9 +49,14 @@ def evaluate(root=Path('snapshots')):
         'status':'CANDIDATE_ONLY_NOT_PIT_VERIFIED','trading_authorized':False,'evaluations':[]}
     if not latest:return out
     latest_manifest,latest_data=latest[4],latest[5]
+    outcome_capture=datetime.fromisoformat(latest_manifest['capture_time_utc'].replace('Z','+00:00'))
     out['latest_outcome_snapshot_sha256']=latest_manifest['snapshot_sha256']
     for asof,(_,registration_time,archive,receipt,_,_) in sorted(canonical.items()):
         item={'asof_date':asof,'source_archive':archive,'registered_at_utc':receipt['registered_at_utc'],'status':'PENDING_20_SESSIONS'}
+        if outcome_capture<=registration_time:
+            item['status']='PENDING_POST_REGISTRATION_SNAPSHOT'
+            out['evaluations'].append(item)
+            continue
         per={}
         for index in ('000300.SH','000688.SH'):
             calendar=sorted(latest_data[index])
@@ -53,6 +66,12 @@ def evaluate(root=Path('snapshots')):
                 break
             pos=calendar.index(asof)
             if len(calendar)-pos-1<20:continue
+            first_close=latest_data[index][asof]
+            registered_close=canonical[asof][5][index][asof]
+            if abs(first_close-registered_close)>.02:
+                item['status']='QUARANTINED_REVISED_ASOF_CLOSE'
+                per={}
+                break
             prices=[latest_data[index][d] for d in calendar[pos:pos+21]]
             returns=[math.log(prices[i]/prices[i-1]) for i in range(1,len(prices))]
             realized=statistics.stdev(returns)*math.sqrt(252)
@@ -66,7 +85,8 @@ def evaluate(root=Path('snapshots')):
             item['outcomes']=per
         out['evaluations'].append(item)
     out['matured_count']=sum(x['status']=='MATURED_CANDIDATE_ONLY' for x in out['evaluations'])
-    out['pending_count']=len(out['evaluations'])-out['matured_count']
+    out['pending_count']=sum(x['status'].startswith('PENDING') for x in out['evaluations'])
+    out['quarantined_count']=sum(x['status'].startswith('QUARANTINED') for x in out['evaluations'])
     out['forecast_validated']=False
     return out
 
