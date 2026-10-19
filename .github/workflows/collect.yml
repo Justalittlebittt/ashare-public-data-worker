@@ -30,7 +30,11 @@ jobs:
       - name: Offline unit tests
         run: python -m unittest discover -v
       - name: Fetch public candidate closes
-        run: python collect.py --start 2025-01-01 --output candidate.csv --min-sessions 272
+        id: fetch
+        shell: bash
+        run: |
+          set -o pipefail
+          python collect.py --start 2025-01-01 --output candidate.csv --min-sessions 272 2>&1 | tee candidate_fetch.log
       - name: Deterministic chronological holdout diagnostic
         run: |
           python -m zipfile -c candidate_snapshot.zip candidate.csv candidate.csv.manifest.json
@@ -48,6 +52,14 @@ jobs:
           git add snapshots/
           git commit -m "Archive candidate data from run $RUN_ID attempt $RUN_ATTEMPT"
           git push origin HEAD:main
+      - name: Retain failure evidence without declaring collection success
+        if: failure() && steps.fetch.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-fetch-failure-${{ github.run_id }}
+          path: candidate_fetch.log
+          retention-days: 30
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: success()
         with:
