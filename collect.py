@@ -1,6 +1,6 @@
 """Public candidate-only A-share index daily collector; never a formal admission receipt."""
 import argparse,csv,hashlib,json,math,tempfile,time
-from datetime import date,datetime,timezone
+from datetime import date,datetime,timezone,timedelta
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -59,7 +59,17 @@ def build(start,end,output,fetch=fetch_index,minimum_sessions=272):
         if tmp:tmp.unlink(missing_ok=True)
         if mtmp:mtmp.unlink(missing_ok=True)
 
+def safe_latest_date(now=None):
+    from datetime import time
+    from zoneinfo import ZoneInfo
+    now=now or datetime.now(timezone.utc)
+    shanghai=now.astimezone(ZoneInfo('Asia/Shanghai'))
+    # 17:00 CST is a conservative post-close buffer. Never record a live-session daily candle.
+    return (shanghai.date() if shanghai.time()>=time(17,0) else shanghai.date()-timedelta(days=1)).isoformat()
+
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--start',default='2025-01-01');p.add_argument('--end',default=date.today().isoformat());p.add_argument('--min-sessions',type=int,default=272);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
-    print(json.dumps(build(a.start,a.end,a.output,minimum_sessions=a.min_sessions)))
+    p=argparse.ArgumentParser();p.add_argument('--start',default='2025-01-01');p.add_argument('--end',default=None);p.add_argument('--min-sessions',type=int,default=272);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    end=a.end or safe_latest_date()
+    if end>safe_latest_date():raise ValueError('END_DATE_NOT_POST_CLOSE_FINAL')
+    print(json.dumps(build(a.start,end,a.output,minimum_sessions=a.min_sessions)))
 if __name__=='__main__':main()
