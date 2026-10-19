@@ -11,6 +11,7 @@ on:
       - 'risk_diagnostic.py'
       - 'test_risk_diagnostic.py'
       - 'archive_snapshot.py'
+      - 'register_forecast.py'
       - '.github/workflows/collect.yml'
 permissions:
   contents: write
@@ -34,6 +35,8 @@ jobs:
         run: |
           python -m zipfile -c candidate_snapshot.zip candidate.csv candidate.csv.manifest.json
           python risk_diagnostic.py candidate_snapshot.zip --output candidate_risk_diagnostic.json
+      - name: Register current forecast before future outcome exists
+        run: python register_forecast.py
       - name: Archive immutable candidate snapshot into public repository
         env:
           RUN_ID: ${{ github.run_id }}
@@ -53,4 +56,5 @@ jobs:
             candidate.csv
             candidate.csv.manifest.json
             candidate_risk_diagnostic.json
+            candidate_forecast_registration.json
           retention-days: 30
