@@ -1,0 +1,31 @@
+name: Independent Tencent source probe
+on:
+  push:
+    paths:
+      - 'probe_tencent.py'
+      - '.github/workflows/tencent-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe independent public upstream
+        shell: bash
+        run: |
+          set -o pipefail
+          python probe_tencent.py 2>&1 | tee probe-result.jsonl
+      - name: Save source probe diagnostic even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tencent-probe-${{ github.run_id }}
+          path: probe-result.jsonl
+          if-no-files-found: warn
+          retention-days: 14
