@@ -1,0 +1,53 @@
+name: Offline prospective registration validation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'register_forecast.py'
+      - 'archive_snapshot.py'
+      - '.github/workflows/offline-registration.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate registration against archived immutable input
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp snapshots/run-39191968571-attempt-1/candidate.csv .
+          cp snapshots/run-39191968571-attempt-1/candidate.csv.manifest.json .
+          cp snapshots/run-39191968571-attempt-1/candidate_risk_diagnostic.json .
+          python register_forecast.py
+          python - <<'PY'
+          import json
+          r=json.load(open('candidate_forecast_registration.json'))
+          m=json.load(open('candidate.csv.manifest.json'))
+          assert r['snapshot_sha256']==m['snapshot_sha256']
+          assert r['source_admitted'] is False and r['trading_authorized'] is False
+          assert all(v['future_target_available_at_registration'] is False for v in r['predictions'].values())
+          print('REGISTERED_OFFLINE',r['forecast_asof_date'],r['snapshot_sha256'])
+          PY
+          python archive_snapshot.py --run-id "${GITHUB_RUN_ID}" --attempt "${GITHUB_RUN_ATTEMPT}"
+          test -f "snapshots/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}/archive_receipt.json"
+          python - <<'PY'
+          import json,os
+          p=f"snapshots/run-{os.environ['GITHUB_RUN_ID']}-attempt-{os.environ['GITHUB_RUN_ATTEMPT']}/archive_receipt.json"
+          r=json.load(open(p))
+          assert 'candidate_forecast_registration.json' in r['files_sha256']
+          assert r['admitted'] is False and r['trading_authorized'] is False
+          print('ARCHIVE_VERIFIED_OFFLINE',r['source_sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: offline-registration-verification
+          path: |
+            candidate_forecast_registration.json
+            snapshots/run-${{ github.run_id }}-attempt-${{ github.run_attempt }}/archive_receipt.json
+          retention-days: 30
