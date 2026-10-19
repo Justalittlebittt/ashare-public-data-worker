@@ -5,6 +5,8 @@ on:
     paths:
       - 'collect.py'
       - 'test_collect.py'
+      - 'risk_diagnostic.py'
+      - 'test_risk_diagnostic.py'
       - '.github/workflows/collect.yml'
 permissions:
   contents: read
@@ -21,6 +23,10 @@ jobs:
         run: python -m unittest discover -v
       - name: Fetch public candidate closes
         run: python collect.py --start 2025-01-01 --output candidate.csv --min-sessions 272
+      - name: Deterministic chronological holdout diagnostic
+        run: |
+          python -m zipfile -c candidate_snapshot.zip candidate.csv candidate.csv.manifest.json
+          python risk_diagnostic.py candidate_snapshot.zip --output candidate_risk_diagnostic.json
       - uses: actions/upload-artifact@v4
         if: success()
         with:
@@ -28,4 +34,5 @@ jobs:
           path: |
             candidate.csv
             candidate.csv.manifest.json
+            candidate_risk_diagnostic.json
           retention-days: 7
