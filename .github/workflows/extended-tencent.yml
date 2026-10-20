@@ -1,0 +1,30 @@
+name: Extended Tencent candidate history
+on:
+  push:
+    paths:
+      - 'export_tencent_extended.py'
+      - '.github/workflows/extended-tencent.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline collector regressions
+        run: python -m unittest discover -v
+      - name: Capture extended single-source historical candidate
+        run: python export_tencent_extended.py
+      - name: Upload immutable candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: extended-tencent-candidate
+          path: |
+            extended_tencent.csv
+            extended_tencent.csv.manifest.json
+          retention-days: 30
