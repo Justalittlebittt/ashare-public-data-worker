@@ -1,0 +1,24 @@
+name: STAR50 long-history downside replication
+on:
+  push:
+    paths:
+      - star50_long_downside.py
+      - .github/workflows/star50-long.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  replicate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Recompute fixed-rule long STAR50 retrospective study
+        run: python star50_long_downside.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: star50-long-downside-evidence
+          path: star50_long_downside.json
