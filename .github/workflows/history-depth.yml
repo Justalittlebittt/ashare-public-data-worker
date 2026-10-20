@@ -1,0 +1,24 @@
+name: Public candidate history depth probe
+on:
+  push:
+    paths:
+      - 'probe_history_depth.py'
+      - '.github/workflows/history-depth.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  depth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe 2018-2026 provider history depth
+        run: python probe_history_depth.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: history-depth-evidence
+          path: history_depth_probe.json
