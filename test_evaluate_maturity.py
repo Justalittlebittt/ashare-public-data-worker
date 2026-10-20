@@ -41,17 +41,17 @@ class MaturityTests(unittest.TestCase):
         self.assertEqual(r['pending_count'],1)
     def test_matures_exactly_on_twentieth_later_session(self):
         make_snapshot(self.root,1,self.prices,300)
-        make_snapshot(self.root,2,self.prices,320)
+        make_snapshot(self.root,2,self.prices,320,registered='2026-10-21T09:00:00+00:00',capture='2026-10-21T08:30:00+00:00')
         r=evaluate(self.root)
         self.assertEqual(r['matured_count'],1);self.assertEqual(r['pending_count'],1)
     def test_preclose_forecast_quarantined_from_canonical(self):
-        make_snapshot(self.root,1,self.prices,300,registered="2026-10-20T07:01:00+00:00",capture="2026-10-20T04:00:00+00:00")
+        # Build an as-of-day captured before 17:00 Shanghai time.\n        from datetime import date,timedelta\n        d=date(2025,1,1);n=-1\n        while n<300:\n            if d.weekday()<5:n+=1\n            if n==300:break\n            d+=timedelta(days=1)\n        stamp=d.isoformat()\n        make_snapshot(self.root,1,self.prices,300,registered=stamp+'T04:01:00+00:00',capture=stamp+'T04:00:00+00:00')
         r=evaluate(self.root)
         self.assertEqual(r['unique_forecast_dates'],0)
     def test_revised_asof_close_quarantines(self):
         make_snapshot(self.root,1,self.prices,300)
         changed=self.prices.copy();changed[300]+=10
-        make_snapshot(self.root,2,changed,325)
+        make_snapshot(self.root,2,changed,325,registered='2026-10-21T09:00:00+00:00',capture='2026-10-21T08:30:00+00:00')
         r=evaluate(self.root)
         self.assertEqual(r['matured_count'],0);self.assertEqual(r['quarantined_count'],1)
     def test_snapshot_hash_corruption_rejected(self):
