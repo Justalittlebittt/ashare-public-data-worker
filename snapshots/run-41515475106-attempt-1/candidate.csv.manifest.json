@@ -1,0 +1,18 @@
+{
+  "schema": "ASHARE_PUBLIC_CANDIDATE_V1",
+  "source": "Tencent direct HTTP - independent candidate only",
+  "source_id": "DIRECT_TENCENT_CANDIDATE_NOT_ADMITTED",
+  "snapshot_sha256": "a120e7a259ea777addf27c3c17cde1a53dda1b4dd374ec2ab88f3e217bc927b8",
+  "capture_time_utc": "2026-11-02T20:02:31.169647+00:00",
+  "rows_per_index": {
+    "000300.SH": 442,
+    "000688.SH": 442
+  },
+  "requested_range": [
+    "2025-01-01",
+    "2026-11-02"
+  ],
+  "admitted_to_ai_core_evid": false,
+  "historical_point_in_time_verified": false,
+  "trading_authorized": false
+}
