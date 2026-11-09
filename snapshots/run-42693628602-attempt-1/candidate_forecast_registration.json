@@ -1,0 +1,29 @@
+{
+  "schema": "CANDIDATE_PROSPECTIVE_RISK_FORECAST_V1",
+  "snapshot_sha256": "f035a7b541ee568df513435fde3a81a9305d062a349eefa0e17c53216c76ad2d",
+  "captured_at_utc": "2026-11-09T20:30:47.015035+00:00",
+  "registered_at_utc": "2026-11-09T20:30:47.276270+00:00",
+  "forecast_asof_date": "2026-11-09",
+  "forecast_horizon_sessions": 20,
+  "model_specification": "RV20 persistence vs historical expanding RV20 mean; log close returns, annualized sqrt(252)",
+  "predictions": {
+    "000300.SH": {
+      "asof_date": "2026-11-09",
+      "target": "next_20_trading_sessions_realized_volatility",
+      "persistence_rv20": 0.17485342953641503,
+      "expanding_rv20_mean": 0.1591092909270598,
+      "future_target_available_at_registration": false
+    },
+    "000688.SH": {
+      "asof_date": "2026-11-09",
+      "target": "next_20_trading_sessions_realized_volatility",
+      "persistence_rv20": 0.5617131082929065,
+      "expanding_rv20_mean": 0.3451778611599555,
+      "future_target_available_at_registration": false
+    }
+  },
+  "source_admitted": false,
+  "historical_pit_verified": false,
+  "forecast_validated": false,
+  "trading_authorized": false
+}
