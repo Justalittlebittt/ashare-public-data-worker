@@ -1,0 +1,13 @@
+{
+  "run_id": "45481735551",
+  "run_attempt": "1",
+  "source_sha256": "fef7c079edee9132ef4039e93cdd0c27b571c9d29b0cce55df0127a3f04115b6",
+  "files_sha256": {
+    "candidate.csv": "fef7c079edee9132ef4039e93cdd0c27b571c9d29b0cce55df0127a3f04115b6",
+    "candidate.csv.manifest.json": "beb35e865c032404f27dfc50a2e7294f27d76c09fa3701fe12b2e59070f0edf8",
+    "candidate_risk_diagnostic.json": "451bda32717510ec2b591324bd87047ba2755b64174e700f1d91ecb79f19d072",
+    "candidate_forecast_registration.json": "d92faa881effad7da5f1cd4fc0e22fc69a63e0b7c4c0bdab44a06a438fb0d137"
+  },
+  "admitted": false,
+  "trading_authorized": false
+}
