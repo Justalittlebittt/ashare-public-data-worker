@@ -1,0 +1,18 @@
+{
+  "schema": "ASHARE_PUBLIC_CANDIDATE_V1",
+  "source": "Eastmoney direct HTTP - independent candidate only",
+  "source_id": "DIRECT_EASTMONEY_CANDIDATE_NOT_ADMITTED",
+  "snapshot_sha256": "8221530009e060be3d3404b196f4b0dcbb470efaa77fe8e0528d430e6dfa91c8",
+  "capture_time_utc": "2026-11-25T19:48:46.986624+00:00",
+  "rows_per_index": {
+    "000300.SH": 459,
+    "000688.SH": 459
+  },
+  "requested_range": [
+    "2025-01-01",
+    "2026-11-25"
+  ],
+  "admitted_to_ai_core_evid": false,
+  "historical_point_in_time_verified": false,
+  "trading_authorized": false
+}
